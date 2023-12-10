@@ -1,2 +1,2 @@
 # DBO
- DBO算法的实现与改进
+ DBO-Dung beetle optimizer算法的实现与改进
