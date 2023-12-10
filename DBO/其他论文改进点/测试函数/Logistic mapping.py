@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 
+
 def logstic(z, u):
     return u * z * (1 - z)
+
 
 result = 0.200000
 u = 0.5
