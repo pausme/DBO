@@ -4,6 +4,8 @@ Created on Tue May 24 13:13:28 2016
 
 @author: Hossam Faris
 """
+# doi : 10.1016/j.fluid.2012.09.018
+# 参考网站 : https://github.com/7ossam81/EvoloPy/blob/master/optimizers/CS.py
 import math
 import numpy
 import random
