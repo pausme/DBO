@@ -1,3 +1,5 @@
+# doi : 10.1016/j.advengsoft.2016.01.008
+# 参考网站 : https://zhuanlan.zhihu.com/p/347741616
 import numpy as np
 import matplotlib.pyplot as plt
 
