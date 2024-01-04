@@ -3,6 +3,7 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from scipy.special import gamma
 
 
 '''种群初始化'''
@@ -23,11 +24,20 @@ def Fitness(X, fun):
 
 def Bounds(s, Lb, Ub):
     temp = s
+    beta = 3/2 
+    alpha_u = math.pow(
+        (gamma(1 + beta) * math.sin(math.pi * beta / 2) / (gamma(((1 + beta) / 2) * beta * math.pow(2, (beta - 1) / 2)))),
+        (1 / beta)
+    )
+    alpha_v = 1
     for i in range(len(s)):
+        u = np.random.normal(0, alpha_u, 1)
+        v = np.random.normal(0, alpha_v, 1)
+        s = u / math.pow(abs(v), (1 / beta))
         if temp[i] < Lb[0, i]:
-            temp[i] = Lb[0, i]
+            temp[i] = max(Lb[0, i], Lb[0, i] * 1/s)
         elif temp[i] > Ub[0, i]:
-            temp[i] = Ub[0, i]
+            temp[i] = min(Ub[0, i], Ub[0, i] * 1/s)
     return temp
 
 

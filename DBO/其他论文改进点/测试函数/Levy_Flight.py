@@ -15,7 +15,8 @@ alpha_v = 1
 for i in x:
     u = np.random.normal(0, alpha_u, 1)
     v = np.random.normal(0, alpha_v, 1)
-    step = 0.05 * (u * alpha_u / math.pow(abs(v), (1 / beta)))
+    # step = 0.05 * (u * alpha_u / math.pow(abs(v), (1 / beta)))
+    step = u / math.pow(abs(v), (1/beta))
 
     y.append(step)
 

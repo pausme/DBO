@@ -3,13 +3,25 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+import random
+
+
+def Tent_chaotic(xi, u):
+    if xi < u:
+        return xi / u
+    else:
+        return (1 - xi)/(1 - u)
 
 
 '''种群初始化'''
 def init(pop, dim, ub, lb):
     X = np.zeros((pop, dim))
     for i in range(pop):
-        X[i, :] = lb + (ub - lb) * np.random.rand(1, dim)
+        # X[i, :] = lb + (ub - lb) * np.random.rand(1, dim)
+        tmp = random.random()
+        u = 0.499
+        for j in range(dim):
+            X[i, j] = lb[0, j] + (ub[0, j] - lb[0, j]) * Tent_chaotic(tmp, u)
     return X
 
 
@@ -194,9 +206,8 @@ def dbo(pop, dim, lb, ub, iterations, fun):
 
 '''适应度函数'''
 def fun(X):
-    o=np.sum(np.square(X))
-    return o
-
+    return np.sum(np.square(X))
+    
 
 pop = 30
 dim = 30

@@ -194,7 +194,8 @@ def dbo(pop, dim, lb, ub, iterations, fun):
 
 '''适应度函数'''
 def fun(X):
-    return np.sum(np.square(X))
+    o=np.sum(np.square(X))
+    return o
 
 
 pop = 30

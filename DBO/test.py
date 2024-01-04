@@ -1,13 +1,22 @@
-import numpy as np
+import matplotlib.pyplot as plt
+import random
 
-ub = np.ones((1, 10)) * 100
-lb = np.ones((1, 10)) * -100
-x = np.random.random((1, 10))
-print(x[0, 1])
-print(x.shape)
-# X = np.clip(x, ub[0, :], lb[0, :])
-# print(X)
 
-for i in range(10):
-    x[0, i] = np.clip(x[0, i], ub[0, i], lb[0, i])
-print(x)
+def fun(xi, u):
+    if xi < u:
+        return xi / u
+    else:
+        return (1 - xi)/(1 - u)
+
+
+result = random.random()
+u = 0.499
+x = [result]
+for i in range(1000):
+    x.append(fun(x[-1], u))
+
+plt.plot(x)
+plt.title("Tent Mapping with u = {}".format(u))
+plt.xlabel("iterations")
+plt.ylabel("value")
+plt.show()
