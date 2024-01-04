@@ -3,25 +3,13 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-import random
-
-
-def Tent_chaotic(xi, u):
-    if xi < u:
-        return xi / u
-    else:
-        return (1 - xi)/(1 - u)
 
 
 '''种群初始化'''
 def init(pop, dim, ub, lb):
     X = np.zeros((pop, dim))
     for i in range(pop):
-        # X[i, :] = lb + (ub - lb) * np.random.rand(1, dim)
-        tmp = random.random()
-        u = 0.499
-        for j in range(dim):
-            X[i, j] = lb[0, j] + (ub[0, j] - lb[0, j]) * Tent_chaotic(tmp, u)
+        X[i, :] = lb + (ub - lb) * np.random.rand(1, dim)
     return X
 
 
@@ -47,7 +35,7 @@ def swapfun(ss):
     temp = ss
     o = np.zeros((1,len(temp)))
     for i in range(len(ss)):
-        o[0,i] = temp[i]
+        o[0,i]=temp[i]
     return o
 
 
@@ -87,7 +75,7 @@ def BRupdate(X, pX, XX, pNum, worseX, fitness):
 
 '''蜣螂繁殖行为'''
 def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX):
-    R = 1 - t / iterations
+    R = (math.cos(math.pi * (t / iterations)) + 1) * 0.5
     # bestIndex = np.argmin(fitness)  # 找到X中最小适应度的索引
     # bestX = X[bestIndex, :]  # 找到X中具有最有适应度的蜣螂位置
     lbStar = bestXX * (1 - R)
@@ -117,7 +105,7 @@ def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX):
 
 '''蜣螂觅食行为'''
 def FAupdate(X, pX, t, iterations, fitness, bestX):
-    R = 1 - t / iterations
+    R = (math.cos(math.pi * (t / iterations)) + 1) * 0.5
     lbl = bestX * (1 - R)
     ubl = bestX * (1 + R)
 
@@ -206,8 +194,9 @@ def dbo(pop, dim, lb, ub, iterations, fun):
 
 '''适应度函数'''
 def fun(X):
-    return np.sum(np.square(X))
-    
+    o=np.sum(np.square(X))
+    return o
+
 
 pop = 30
 dim = 30

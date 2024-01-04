@@ -6,22 +6,11 @@ import matplotlib.pyplot as plt
 import random
 
 
-def Tent_chaotic(xi, u):
-    if xi < u:
-        return xi / u
-    else:
-        return (1 - xi)/(1 - u)
-
-
 '''种群初始化'''
 def init(pop, dim, ub, lb):
     X = np.zeros((pop, dim))
     for i in range(pop):
-        # X[i, :] = lb + (ub - lb) * np.random.rand(1, dim)
-        tmp = random.random()
-        u = 0.499
-        for j in range(dim):
-            X[i, j] = lb[0, j] + (ub[0, j] - lb[0, j]) * Tent_chaotic(tmp, u)
+        X[i, :] = lb + (ub - lb) * np.random.rand(1, dim)
     return X
 
 
@@ -47,8 +36,20 @@ def swapfun(ss):
     temp = ss
     o = np.zeros((1,len(temp)))
     for i in range(len(ss)):
-        o[0,i] = temp[i]
+        o[0,i]=temp[i]
     return o
+
+
+# 螺旋形状因子
+def C(c, t, t_max):
+    return math.exp(c * math.cos(math.pi * t / t_max))
+
+
+def spiral_search_factor(t, t_max):
+    c = 1
+    l = random.random() * 2 - 1
+    res = math.exp(C(c, t, t_max) * l)  * math.cos(2 * math.pi * l)
+    return res
 
 
 '''蜣螂滚球行为与舞蹈行为'''
@@ -104,7 +105,7 @@ def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX):
     xUB=swapfun(ubStar)
 
     for i in range(pNum + 1, 12):
-        X[i, :] = bestXX + (np.random.rand(1, dim)) * (pX[i, :] - lbStar) + (np.random.rand(1, dim)) * (pX[i, :] - ubStar)
+        X[i, :] = bestXX + (spiral_search_factor(t, iterations) * np.random.rand(1, dim)) * (pX[i, :] - lbStar) + (spiral_search_factor(t, iterations) * np.random.rand(1, dim)) * (pX[i, :] - ubStar)
         # for j in range(dim):
         #     X[i, j] = np.clip(pX[i, j], lb[0, j], ub[0, j])
     
@@ -129,7 +130,7 @@ def FAupdate(X, pX, t, iterations, fitness, bestX):
     ubl = Bounds(lbl, lb, ub)
 
     for i in range(13, 19):
-        X[i, :] = pX[i, :] + ((np.random.rand(1)) * (pX[i, :] - lbl) + ((np.random.rand(1, dim)) * (pX[i, :] - ubl)))
+        X[i, :] = spiral_search_factor(t, iterations) * pX[i, :] + ((np.random.rand(1)) * (pX[i, :] - lbl) + ((np.random.rand(1, dim)) * (pX[i, :] - ubl)))
         # for j in range(dim):
         #     X[i, j] = np.clip(pX[i, j], lbl[j], ubl[j])
     
@@ -206,8 +207,9 @@ def dbo(pop, dim, lb, ub, iterations, fun):
 
 '''适应度函数'''
 def fun(X):
-    return np.sum(np.square(X))
-    
+    o=np.sum(np.square(X))
+    return o
+
 
 pop = 30
 dim = 30
