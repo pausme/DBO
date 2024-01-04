@@ -198,7 +198,7 @@ def fun(X):
 
 
 pop = 30
-dim = 20
+dim = 30
 iterations = 1000
 lb_num = -100
 ub_num = 100

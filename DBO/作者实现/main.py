@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
     
 def main(argv):
     SearchAgents_no=30 # 种群数
-    Function_name='F4' # 适应值函数
+    Function_name='F1' # 适应值函数
     Max_iteration=1000 # 迭代次数
  
     [fobj,lb,ub,dim]=fun1.Parameters(Function_name)

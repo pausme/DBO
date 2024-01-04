@@ -346,8 +346,8 @@ def DBO(pop, M, c, d, dim, fun):
         X[i, :] = lb+(ub-lb)*np.random.rand(1, dim)
         fit[i, 0] = fun(X[i, :])
     pFit = fit
-    pX = X
-    XX=pX
+    pX = X # 相当于X_new
+    XX=pX # 相当于X_Last
     fMin = np.min(fit[:, 0])
     bestI = np.argmin(fit[:, 0])
     bestX = X[bestI, :]
@@ -357,13 +357,12 @@ def DBO(pop, M, c, d, dim, fun):
         # sortIndex = np.argsort(pFit.T)
         fmax = np.max(pFit[:, 0])
         B = np.argmax(pFit[:, 0])
-        worse = X[B, :]                          #
+        worse = X[B, :]
         r2 = np.random.rand(1)
         # v0 = 0.5
         # v = v0 + t/(3*M)
         for i in range(pNum):
             if r2 < 0.9:
-                r1 = np.random.rand(1)
                 a = np.random.rand(1)
                 if a > 0.1:
                     a = 1
@@ -412,7 +411,7 @@ def DBO(pop, M, c, d, dim, fun):
             if fit[i, 0] < pFit[i, 0]:
                 pFit[i, 0] = fit[i, 0]
                 pX[i, :] = X[i, :]
-            if pFit[i, 0] < fMin :
+            if pFit[i, 0] < fMin:
                 fMin = pFit[i, 0]
                 bestX = pX[i, :]
 
