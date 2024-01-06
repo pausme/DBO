@@ -4,41 +4,13 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 import random
-from scipy.special import gamma
-
-
-def x2y(xi, lb, ub):
-    # 这里给定 X 求出对应 Y
-    return (xi - lb) / (ub - lb)
-
-
-def y2y(yi, alpha):
-    # 这里是给定 Y 通过映射来得到下一个 Y
-    for i in range(dim):
-        if 0 < yi[0, i] and yi[0, i] <= (1 - alpha):
-            yi[0, i] = yi[0, i] / (1 - alpha)
-        elif yi[0, i] > (1 - alpha) and yi[0, i] < 1:
-            yi[0, i] = (yi[0, i] - 1 + alpha) / alpha
-        else:
-            pass
-
-
-def y2x(yi, lb, ub):
-    # 这里是给定 Y 的值后求出对应的 X
-    xi = lb + (ub - lb) * yi
-    return xi
 
 
 '''种群初始化'''
 def init(pop, dim, ub, lb):
-    alpha=0.4
-    x1 = (ub - lb) * np.random.random((1, dim)) + lb
-    y_t = x2y(x1, lb, ub)
     X = np.zeros((pop, dim))
-    X[0] = x1
-    for i in range(pop-1):
-        y2y(y_t, alpha)
-        X[i+1] = y2x(y_t, lb, ub)
+    for i in range(pop):
+        X[i, :] = lb + (ub - lb) * np.random.rand(1, dim)
     return X
 
 
@@ -52,20 +24,11 @@ def Fitness(X, fun):
 
 def Bounds(s, Lb, Ub):
     temp = s
-    beta = 3/2 
-    alpha_u = math.pow(
-        (gamma(1 + beta) * math.sin(math.pi * beta / 2) / (gamma(((1 + beta) / 2) * beta * math.pow(2, (beta - 1) / 2)))),
-        (1 / beta)
-    )
-    alpha_v = 1
     for i in range(len(s)):
-        u = np.random.normal(0, alpha_u, 1)
-        v = np.random.normal(0, alpha_v, 1)
-        s = u / math.pow(abs(v), (1 / beta))
         if temp[i] < Lb[0, i]:
-            temp[i] = max(Lb[0, i], Lb[0, i] * s)
+            temp[i] = Lb[0, i]
         elif temp[i] > Ub[0, i]:
-            temp[i] = min(Ub[0, i], Ub[0, i] * s)
+            temp[i] = Ub[0, i]
     return temp
 
 
@@ -75,18 +38,6 @@ def swapfun(ss):
     for i in range(len(ss)):
         o[0,i]=temp[i]
     return o
-
-
-# 螺旋形状因子
-def C(c, t, t_max):
-    return math.exp(c * math.cos(math.pi * t / t_max))
-
-
-def spiral_search_factor(t, t_max):
-    c = 1
-    l = random.random() * 2 - 1
-    res = math.exp(C(c, t, t_max) * l)  * math.cos(2 * math.pi * l)
-    return res
 
 
 '''蜣螂滚球行为与舞蹈行为'''
@@ -125,11 +76,11 @@ def BRupdate(X, pX, XX, pNum, worseX, fitness):
 
 '''蜣螂繁殖行为'''
 def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX):
-    R = (math.cos(math.pi * (t / iterations)) + 1) * 0.5
+    R = 1 - t / iterations
     # bestIndex = np.argmin(fitness)  # 找到X中最小适应度的索引
     # bestX = X[bestIndex, :]  # 找到X中具有最有适应度的蜣螂位置
-    lbStar = bestXX / 2 * (1 - R)
-    ubStar = bestXX / 2 * (1 + R)
+    lbStar = bestXX * (1 - R)
+    ubStar = bestXX * (1 + R)
 
     # for j in range(dim):
     #     lbStar[j] = np.clip(lbStar[j], lb[0, j], ub[0, j])
@@ -142,7 +93,7 @@ def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX):
     xUB=swapfun(ubStar)
 
     for i in range(pNum + 1, 12):
-        X[i, :] = bestXX + (spiral_search_factor(t, iterations) * np.random.rand(1, dim)) * (pX[i, :] - lbStar) + (spiral_search_factor(t, iterations) * np.random.rand(1, dim)) * (pX[i, :] - ubStar)
+        X[i, :] = bestXX + (np.random.rand(1, dim)) * (pX[i, :] - lbStar) + (np.random.rand(1, dim)) * (pX[i, :] - ubStar)
         # for j in range(dim):
         #     X[i, j] = np.clip(pX[i, j], lb[0, j], ub[0, j])
     
@@ -154,8 +105,8 @@ def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX):
 
 
 '''蜣螂觅食行为'''
-def FAupdate(X, pX, t, iterations, fitness, bestXX, bestX):
-    R = (math.cos(math.pi * (t / iterations)) + 1) * 0.5
+def FAupdate(X, pX, t, iterations, fitness, bestX):
+    R = 1 - t / iterations
     lbl = bestX * (1 - R)
     ubl = bestX * (1 + R)
 
@@ -167,7 +118,7 @@ def FAupdate(X, pX, t, iterations, fitness, bestXX, bestX):
     ubl = Bounds(lbl, lb, ub)
 
     for i in range(13, 19):
-        X[i, :] = spiral_search_factor(t, iterations) * pX[i, :] + ((np.random.rand(1)) * (pX[i, :] - lbl) + ((np.random.rand(1, dim)) * (pX[i, :] - ubl)))
+        X[i, :] = pX[i, :] + ((np.random.rand(1)) * (pX[i, :] - lbl) + ((np.random.rand(1, dim)) * (pX[i, :] - ubl)))
         # for j in range(dim):
         #     X[i, j] = np.clip(pX[i, j], lbl[j], ubl[j])
     
@@ -222,14 +173,14 @@ def dbo(pop, dim, lb, ub, iterations, fun):
         
         SPupdate(X, pX, pNum, t, iterations, fitness, bestXX)
         
-        FAupdate(X, pX, t, iterations, fitness, bestXX, bestX)
+        FAupdate(X, pX, t, iterations, fitness, bestX)
 
         THupdate(X, pX, fitness, bestX, bestXX)
 
         for i in range(20, pop):
             a = random.random()
             if (a * a * a) < (1 - t / iterations):
-                (num1, num2) = random.sample(range(20, pop), 2)
+                (num1, num2) = random.sample(range(20, pop), 2)  # 从1到99之间随机选择一个数
                 X[i] = a * X[num1] + (1 - a) * X[num2]
 
         XX = pX
@@ -250,33 +201,15 @@ def dbo(pop, dim, lb, ub, iterations, fun):
 
 '''适应度函数'''
 def fun(X):
-    aH = [
-        [10, 3, 17, 3.5, 1.7, 8],
-        [0.05, 10, 17, 0.1, 8, 14],
-        [3, 3.5, 1.7, 10, 17, 8],
-        [17, 8, 0.05, 10, 0.1, 14],
-    ]
-    aH = np.asarray(aH)
-    cH = [1, 1.2, 3, 3.2]
-    cH = np.asarray(cH)
-    pH = [
-        [0.1312, 0.1696, 0.5569, 0.0124, 0.8283, 0.5886],
-        [0.2329, 0.4135, 0.8307, 0.3736, 0.1004, 0.9991],
-        [0.2348, 0.1415, 0.3522, 0.2883, 0.3047, 0.6650],
-        [0.4047, 0.8828, 0.8732, 0.5743, 0.1091, 0.0381],
-    ]
-    pH = np.asarray(pH)
-    o = 0
-    for i in range(0, 4):
-        o = o - cH[i] * np.exp(-(np.sum(aH[i, :] * ((X - pH[i, :]) ** 2))))
+    o=np.sum(np.square(X))
     return o
 
 
 pop = 30
-dim = 6
+dim = 30
 iterations = 1000
-lb_num = -5
-ub_num = 5
+lb_num = -100
+ub_num = 100
 lb = lb_num * np.ones((1, dim))
 ub = ub_num * np.ones((1, dim))
 
