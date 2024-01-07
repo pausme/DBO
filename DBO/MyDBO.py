@@ -91,7 +91,7 @@ def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX):
     xLB=swapfun(lbStar)
     xUB=swapfun(ubStar)
 
-    for i in range(pNum + 1, 12):
+    for i in range(pNum, 12):
         X[i, :] = bestXX + (np.random.rand(1, dim)) * (pX[i, :] - lbStar) + (np.random.rand(1, dim)) * (pX[i, :] - ubStar)
         # for j in range(dim):
         #     X[i, j] = np.clip(pX[i, j], lb[0, j], ub[0, j])
@@ -116,7 +116,7 @@ def FAupdate(X, pX, t, iterations, fitness, bestX):
     lbl = Bounds(lbl, lb, ub)
     ubl = Bounds(lbl, lb, ub)
 
-    for i in range(13, 19):
+    for i in range(12, 19):
         X[i, :] = pX[i, :] + ((np.random.rand(1)) * (pX[i, :] - lbl) + ((np.random.rand(1, dim)) * (pX[i, :] - ubl)))
         # for j in range(dim):
         #     X[i, j] = np.clip(pX[i, j], lbl[j], ubl[j])
@@ -129,7 +129,7 @@ def FAupdate(X, pX, t, iterations, fitness, bestX):
 
 '''蜣螂偷窃行为'''
 def THupdate(X, pX, fitness, bestX, bestXX):
-    for i in range(20, pop):
+    for i in range(19, pop):
         # 这里取 g = 0.5
         X[i, :] = bestX + np.random.randn(1, dim) * (np.abs(pX[i, :] - bestX) + np.abs(pX[i, :] - bestXX)) / 2
         # for j in range(dim):
