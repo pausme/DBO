@@ -1,22 +1,16 @@
 import matplotlib.pyplot as plt
 import random
 
+pop = 30
+P_percent = 0.2
+pNum = round(P_percent * pop)
+# print(pNum)
+x = 0
 
-def fun(xi, u):
-    if xi < u:
-        return xi / u
-    else:
-        return (1 - xi)/(1 - u)
+for i in range(pNum):
+    print(i)
 
+for _ in range(20, pop):
+    x += 1
 
-result = random.random()
-u = 0.499
-x = [result]
-for i in range(1000):
-    x.append(fun(x[-1], u))
-
-plt.plot(x)
-plt.title("Tent Mapping with u = {}".format(u))
-plt.xlabel("iterations")
-plt.ylabel("value")
-plt.show()
+print(x)

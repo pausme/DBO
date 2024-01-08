@@ -172,27 +172,27 @@ def F7(x):
     dim = len(x)
     num1 = [num for num in range(1,dim+1)]
     o = np.sum(num1*np.power(x, 4))+np.random.rand(1)
-    return 0
+    return o
 # F8
 def F8(x):
     o = np.sum(0-x*np.sin(np.sqrt(np.abs(x))))
-    return 0
+    return o
 # F9
 def F9(x):
     dim = len(x)
     o = np.sum(np.square(x)-10*np.cos(2*math.pi*x))+10*dim
-    return 0
+    return o
 # F10
 def F10(x):
     dim=len(x)
     o=0-20*np.exp(0-0.2*np.sqrt(np.sum(np.square(x))/dim))-np.exp(np.sum(np.cos(2*math.pi*x))/dim)+20+np.exp(1)
-    return 0
+    return o
 # F11
 def F11(x):
     dim=len(x)
     num1=[num for num in range(1, dim+1)]
     o=np.sum(np.square(x))/4000-np.prod(np.cos(x/np.sqrt(num1)))+1
-    return 0
+    return o
 
 # F12
 def F12(x):

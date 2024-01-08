@@ -3,8 +3,6 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-import random
-from scipy.special import gamma
 
 
 def x2y(xi, lb, ub):
@@ -52,20 +50,21 @@ def Fitness(X, fun):
 
 def Bounds(s, Lb, Ub):
     temp = s
-    beta = 3/2 
-    alpha_u = math.pow(
-        (gamma(1 + beta) * math.sin(math.pi * beta / 2) / (gamma(((1 + beta) / 2) * beta * math.pow(2, (beta - 1) / 2)))),
-        (1 / beta)
-    )
-    alpha_v = 1
     for i in range(len(s)):
-        u = np.random.normal(0, alpha_u, 1)
-        v = np.random.normal(0, alpha_v, 1)
-        s = u / math.pow(abs(v), (1 / beta))
         if temp[i] < Lb[0, i]:
-            temp[i] = max(Lb[0, i], Lb[0, i] * s)
+            temp[i] = Lb[0, i]
         elif temp[i] > Ub[0, i]:
-            temp[i] = min(Ub[0, i], Ub[0, i] * s)
+            temp[i] = Ub[0, i]
+    return temp
+
+
+def Boundss(s, Lb, Ub, mean_x):
+    temp = s
+    for i in range(len(s)):
+        if temp[i] < Lb[0, i]:
+            temp[i] = mean_x[i]
+        elif temp[i] > Ub[0, i]:
+            temp[i] = mean_x[i]
     return temp
 
 
@@ -75,18 +74,6 @@ def swapfun(ss):
     for i in range(len(ss)):
         o[0,i]=temp[i]
     return o
-
-
-# 螺旋形状因子
-def C(c, t, t_max):
-    return math.exp(c * math.cos(math.pi * t / t_max))
-
-
-def spiral_search_factor(t, t_max):
-    c = 1
-    l = random.random() * 2 - 1
-    res = math.exp(C(c, t, t_max) * l)  * math.cos(2 * math.pi * l)
-    return res
 
 
 '''蜣螂滚球行为与舞蹈行为'''
@@ -124,12 +111,12 @@ def BRupdate(X, pX, XX, pNum, worseX, fitness):
 
 
 '''蜣螂繁殖行为'''
-def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX):
-    R = (math.cos(math.pi * (t / iterations)) + 1) * 0.5
+def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX, mean_x):
+    R = 1 - t / iterations
     # bestIndex = np.argmin(fitness)  # 找到X中最小适应度的索引
     # bestX = X[bestIndex, :]  # 找到X中具有最有适应度的蜣螂位置
-    lbStar = bestXX / 2 * (1 - R)
-    ubStar = bestXX / 2 * (1 + R)
+    lbStar = bestXX * (1 - R)
+    ubStar = bestXX * (1 + R)
 
     # for j in range(dim):
     #     lbStar[j] = np.clip(lbStar[j], lb[0, j], ub[0, j])
@@ -141,12 +128,12 @@ def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX):
     xLB=swapfun(lbStar)
     xUB=swapfun(ubStar)
 
-    for i in range(pNum + 1, 12):
-        X[i, :] = bestXX + (spiral_search_factor(t, iterations) * np.random.rand(1, dim)) * (pX[i, :] - lbStar) + (spiral_search_factor(t, iterations) * np.random.rand(1, dim)) * (pX[i, :] - ubStar)
+    for i in range(pNum + 1, 13):
+        X[i, :] = bestXX + (np.random.rand(1, dim)) * (pX[i, :] - lbStar) + (np.random.rand(1, dim)) * (pX[i, :] - ubStar)
         # for j in range(dim):
         #     X[i, j] = np.clip(pX[i, j], lb[0, j], ub[0, j])
     
-        X[i, :] = Bounds(X[i, :], xLB, xUB)
+        X[i, :] = Boundss(X[i, :], xLB, xUB, mean_x)
 
         # 适应度更新
         fitness[i, 0] = fun(X[i, :])
@@ -154,8 +141,8 @@ def SPupdate(X, pX, pNum, t, iterations, fitness, bestXX):
 
 
 '''蜣螂觅食行为'''
-def FAupdate(X, pX, t, iterations, fitness, bestXX, bestX):
-    R = (math.cos(math.pi * (t / iterations)) + 1) * 0.5
+def FAupdate(X, pX, t, iterations, fitness, bestX, mean_x):
+    R = 1 - t / iterations
     lbl = bestX * (1 - R)
     ubl = bestX * (1 + R)
 
@@ -166,12 +153,12 @@ def FAupdate(X, pX, t, iterations, fitness, bestXX, bestX):
     lbl = Bounds(lbl, lb, ub)
     ubl = Bounds(lbl, lb, ub)
 
-    for i in range(13, 19):
-        X[i, :] = spiral_search_factor(t, iterations) * pX[i, :] + ((np.random.rand(1)) * (pX[i, :] - lbl) + ((np.random.rand(1, dim)) * (pX[i, :] - ubl)))
+    for i in range(13, 20):
+        X[i, :] = pX[i, :] + ((np.random.rand(1)) * (pX[i, :] - lbl) + ((np.random.rand(1, dim)) * (pX[i, :] - ubl)))
         # for j in range(dim):
         #     X[i, j] = np.clip(pX[i, j], lbl[j], ubl[j])
-    
-        X[i, :] = Bounds(X[i, :] , lb, ub)
+
+        X[i, :] = Boundss(X[i, :] , lb, ub, mean_x)
         # 适应度值更新
         fitness[i, 0] = fun(X[i, :])
     return X
@@ -209,6 +196,7 @@ def dbo(pop, dim, lb, ub, iterations, fun):
     Convergence_curve = np.zeros((1, iterations))
 
     for t in range(iterations):
+        mean_x = X.mean(axis=0)
         # BestF = fitness[0]
         fMax = np.max(pFit[:, 0])
         worstI = np.argmax(pFit[:, 0])
@@ -220,17 +208,11 @@ def dbo(pop, dim, lb, ub, iterations, fun):
         bestII = np.argmin(fitness[:, 0])
         bestXX = X[bestII, :] # 这个估计是current best
         
-        SPupdate(X, pX, pNum, t, iterations, fitness, bestXX)
+        SPupdate(X, pX, pNum, t, iterations, fitness, bestXX, mean_x)
         
-        FAupdate(X, pX, t, iterations, fitness, bestXX, bestX)
+        FAupdate(X, pX, t, iterations, fitness, bestX, mean_x)
 
         THupdate(X, pX, fitness, bestX, bestXX)
-
-        # for i in range(20, pop):
-        #     a = random.random()
-        #     if (a * a * a) < (1 - t / iterations):
-        #         (num1, num2) = random.sample(range(20, pop), 2)
-        #         X[i] = a * X[num1] + (1 - a) * X[num2]
 
         XX = pX
 
@@ -250,18 +232,17 @@ def dbo(pop, dim, lb, ub, iterations, fun):
 
 '''适应度函数'''
 def fun(X):
-    y = 0.6224 * X[0] * X[2] * X[3]
-    + 1.7781 * X[1] * X[2]**2
-    + 3.1661 * X[0]**2 * X[3]
-    + 19.84 * X[0]**2 * X[2]
-    return y
+    o=np.sum(np.square(X))
+    return o
 
 
 pop = 30
-dim = 4
+dim = 30
 iterations = 1000
-lb = np.array([[0, 0, 10, 10]])
-ub = np.array([[100, 100, 200, 200]])
+lb_num = -100
+ub_num = 100
+lb = lb_num * np.ones((1, dim))
+ub = ub_num * np.ones((1, dim))
 
 [fMin, bestX, Convergence_curve] = dbo(pop, dim, lb, ub, iterations, fun=fun)
 print(fMin)
